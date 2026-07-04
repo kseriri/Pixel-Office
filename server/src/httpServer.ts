@@ -4,9 +4,6 @@ import fastifyWebsocket from '@fastify/websocket';
 import * as crypto from 'crypto';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import Fastify from 'fastify';
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
 
 import type { AgentRuntime } from './agentRuntime.js';
 import type { AgentStateStore } from './agentStateStore.js';
@@ -107,7 +104,6 @@ export async function createHttpServer(options: HttpServerOptions): Promise<Http
   // ── Routes ──────────────────────────────────────────────────
 
   registerHealthRoute(app);
-  registerProjectsRoute(app);
   registerHookRoute(app, options);
   registerWebSocketRoute(app, options);
 
@@ -128,45 +124,6 @@ function registerHealthRoute(app: FastifyInstance): void {
     uptime: Math.floor((Date.now() - startTime) / 1000),
     pid: process.pid,
   }));
-}
-
-// ── Projects (for the character-assignment settings UI) ─────────
-
-/** Reduce a Claude project dir name to the short folder label the runtime shows
- *  on characters. Claude encodes the workspace path with separators → '-', which
- *  is lossy, so we take the trailing segment — kept identical to
- *  folderNameFromProjectDir in fileWatcher.ts so per-project pins line up.
- *  Caveat: a hyphenated leaf ("web-app") collapses to its last part ("app") and
- *  can collide; Codex / VS Code projects (which keep the full basename) still
- *  match because the settings UI merges in live project names too. */
-function folderLabelFromDir(dirName: string): string {
-  const parts = dirName.replace(/^-+/, '').split('-');
-  return parts[parts.length - 1] || dirName;
-}
-
-/** List the distinct project labels seen in the local session logs, so the
- *  settings UI can offer them for per-project × model character assignment. */
-function registerProjectsRoute(app: FastifyInstance): void {
-  app.get('/api/projects', async (request, reply) => {
-    // Only the local SPA may read this (it discloses local project folder names).
-    if (!isLocalSameOrigin(request)) {
-      reply.code(403).send({ error: 'forbidden' });
-      return;
-    }
-    const labels = new Set<string>();
-    const claudeProjects = path.join(os.homedir(), '.claude', 'projects');
-    try {
-      for (const entry of fs.readdirSync(claudeProjects, { withFileTypes: true })) {
-        if (entry.isDirectory()) {
-          const label = folderLabelFromDir(entry.name);
-          if (label) labels.add(label);
-        }
-      }
-    } catch {
-      // ~/.claude/projects missing or unreadable -> return whatever we have
-    }
-    return { projects: [...labels].sort((a, b) => a.localeCompare(b)) };
-  });
 }
 
 // ── Hook Events ────────────────────────────────────────────────

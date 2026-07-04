@@ -33,30 +33,14 @@ function CharSwatch({ palette, h = 48 }: { palette: number; h?: number }) {
 /** Assign a character per (project × model): pick a project, see its per-model
  *  characters, and click one to choose from a popup of all characters. */
 export function CharacterAssignments({ liveProjects }: { liveProjects: string[] }) {
-  const [projects, setProjects] = useState<string[]>([]);
   const [selected, setSelected] = useState<string>('');
   const [pickerModelKey, setPickerModelKey] = useState<string | null>(null);
   const [, setTick] = useState(0);
 
-  useEffect(() => {
-    let alive = true;
-    fetch('api/projects')
-      .then((r) => r.json())
-      .then((d: { projects?: string[] }) => {
-        if (alive && Array.isArray(d.projects)) setProjects(d.projects);
-      })
-      .catch(() => {
-        /* VS Code webview / offline — fall back to live projects only */
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
-
   const count = getLoadedCharacterCount();
-  const allProjects = Array.from(new Set([...projects, ...liveProjects])).sort((a, b) =>
-    a.localeCompare(b),
-  );
+  // Only currently-running projects (agents present in the office), not every
+  // project ever opened.
+  const allProjects = Array.from(new Set(liveProjects)).sort((a, b) => a.localeCompare(b));
 
   useEffect(() => {
     if (!selected && allProjects.length > 0) setSelected(allProjects[0]);
@@ -74,7 +58,7 @@ export function CharacterAssignments({ liveProjects }: { liveProjects: string[] 
   if (allProjects.length === 0) {
     return (
       <div style={{ padding: 8, opacity: 0.7, fontSize: 12 }}>
-        No projects found yet. Run an agent (or enable “Watch All Sessions”) and reopen.
+        No active projects. Start an agent (currently-running projects appear here) and reopen.
       </div>
     );
   }
