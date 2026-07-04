@@ -1,0 +1,13 @@
+{
+  "name": "pixel-office-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Optional Electron desktop shell for Pixel Office. Runs dist/cli.js and shows it in a native window.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}
