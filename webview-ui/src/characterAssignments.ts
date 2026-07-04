@@ -85,6 +85,14 @@ export function setAssignment(folder: string, modelKey: string, palette: number 
   save(map);
 }
 
+/** Palette index assigned to (folder, modelKey), or undefined. Like getAssignment
+ *  but takes the already-normalized model key (for the settings UI grid). */
+export function getAssignmentByKey(folder: string, modelKey: string): number | undefined {
+  if (!folder) return undefined;
+  const v = load()[keyOf(folder, modelKey)];
+  return typeof v === 'number' ? v : undefined;
+}
+
 /** All assignments as { folder, modelKey, palette }[] (for the settings UI). */
 export function getAllAssignments(): Array<{ folder: string; modelKey: string; palette: number }> {
   const map = load();

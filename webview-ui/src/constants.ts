@@ -107,6 +107,9 @@ export const UTIL_BAR_IDLE_COLOR = 'rgba(255,255,255,0.16)'; // idle / resting (
 
 // Mood emote glyphs shown above a working character (rendered as system emoji).
 export const EMOTE_FONT = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+
+// Backdrop behind the character-picker popup in the settings UI.
+export const PICKER_BACKDROP_COLOR = 'rgba(10, 8, 14, 0.82)';
 // Approximate USD price per 1M tokens { input, output } — for the badge's cost estimate.
 export const MODEL_PRICING: Record<string, { in: number; out: number }> = {
   fable: { in: 15, out: 75 },
