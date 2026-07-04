@@ -14,6 +14,7 @@ import * as path from 'path';
 
 import type { HookProvider } from '../../core/src/provider.js';
 import type { AgentStateStore } from './agentStateStore.js';
+import { EXTERNAL_RESTORE_MAX_AGE_MS } from './constants.js';
 import { DismissalTracker } from './dismissalTracker.js';
 import {
   adoptExternalSessionFromHook,
@@ -336,7 +337,11 @@ export class AgentRuntime {
     for (const p of persisted) {
       if (!p.isExternal) continue;
       try {
-        if (!fs.existsSync(p.jsonlFile)) continue;
+        // Only restore sessions that were active recently — otherwise the office
+        // fills with idle characters from every project ever adopted. statSync
+        // throws if the file is gone, which also covers the existence check.
+        const stat = fs.statSync(p.jsonlFile);
+        if (Date.now() - stat.mtimeMs > EXTERNAL_RESTORE_MAX_AGE_MS) continue;
       } catch {
         continue;
       }

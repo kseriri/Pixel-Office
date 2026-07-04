@@ -34,6 +34,10 @@ export const DISMISSED_COOLDOWN_MS = 180_000; // 3 minutes
 export const GLOBAL_SCAN_ACTIVE_MIN_SIZE = 3_072; // 3KB
 /** Only adopt global JSONL files modified within this window */
 export const GLOBAL_SCAN_ACTIVE_MAX_AGE_MS = 600_000; // 10 minutes
+/** On startup, only restore persisted external agents whose session log was
+ *  touched within this window — otherwise the office fills with idle characters
+ *  from every project ever adopted, regardless of whether it ran recently. */
+export const EXTERNAL_RESTORE_MAX_AGE_MS = 600_000; // 10 minutes
 
 // ── Display Truncation + Pixel Agents Server paths ──────────
 // Centralized in core/src/constants.ts; re-exported here for back-compat.
