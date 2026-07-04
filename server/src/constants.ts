@@ -25,6 +25,11 @@ export const EXTERNAL_ACTIVE_THRESHOLD_MS = 120_000; // 2 minutes
 /** Remove external agents after this much inactivity */
 // export const EXTERNAL_STALE_TIMEOUT_MS = 300_000; // 5 minutes - deprecated
 export const EXTERNAL_STALE_CHECK_INTERVAL_MS = 30_000;
+/** Remove an adopted external agent whose session log hasn't been written to in
+ *  this long — a backstop for sessions that ended without a SessionEnd hook (e.g.
+ *  the terminal was just closed), so the office reflects what's actually running.
+ *  A session that resumes is re-adopted by the scanner. */
+export const EXTERNAL_IDLE_REMOVE_MS = 900_000; // 15 minutes
 /** Cooldown after user closes an agent via X. Must be > EXTERNAL_ACTIVE_THRESHOLD_MS
  *  so the file's mtime becomes stale before the dismissal expires. */
 export const DISMISSED_COOLDOWN_MS = 180_000; // 3 minutes
