@@ -64,21 +64,19 @@ def add(t,c,r,color=None):
     if color: f["color"]=color
     furniture.append(f)
 
-# ── work space 1: standing counter (a bar-height counter with stools) ──
-add("DESK_FRONT",1,3); add("DESK_FRONT",4,3)
-add("PC_FRONT_OFF",2,3); add("PC_FRONT_OFF",5,3)
-for c in (1,2,4,5): add("WOODEN_BENCH",c,5)          # stools face up to counter
+# ── work spaces: desk + PC on top, chairs directly BELOW facing DOWN (toward the
+#    viewer), so a seated agent shows their face instead of their back. Chairs sit
+#    on open floor below the desk, so they're always reachable. `c`,`r` = left
+#    column / desk row (desk spans rows r..r+1; chairs at r+2).
+def workstation(c, r):
+    add("DESK_FRONT", c, r); add("DESK_FRONT", c + 3, r)
+    add("PC_FRONT_OFF", c + 1, r); add("PC_FRONT_OFF", c + 4, r)
+    for cc in (c, c + 1, c + 3, c + 4):
+        add("CUSHIONED_CHAIR_FRONT", cc, r + 2)  # front-facing chair = faces the viewer
 
-# ── work space 2: facing desks 2x2 (two rows face each other over a pod) ──
-add("DESK_FRONT",9,3); add("DESK_FRONT",12,3)
-add("PC_FRONT_OFF",10,3); add("PC_FRONT_OFF",13,3)
-add("CUSHIONED_CHAIR_FRONT",10,2); add("CUSHIONED_CHAIR_FRONT",13,2)  # top, face down
-add("CUSHIONED_CHAIR_BACK",10,5); add("CUSHIONED_CHAIR_BACK",13,5)    # bottom, face up
-
-# ── work space 3: side-by-side counter (a row of seats along one counter) ──
-add("DESK_FRONT",1,10); add("DESK_FRONT",4,10)
-add("PC_FRONT_OFF",2,10); add("PC_FRONT_OFF",5,10)
-for c in (1,2,4,5): add("CUSHIONED_BENCH",c,12)      # row of seats face up
+workstation(1, 3)    # zone 1 (top-left)
+workstation(9, 3)    # zone 2 (top-right)
+workstation(1, 10)   # zone 3 (bottom-left)
 
 # ── break lounge (bottom-right): a cosy sofa cluster + greenery ──
 add("SOFA_FRONT",11,9)
@@ -94,7 +92,7 @@ add("WHITEBOARD",2,0); add("SMALL_PAINTING",7,0)
 add("CLOCK",10,0); add("SMALL_PAINTING",13,0)
 
 layout={
-  "version":1,"cols":COLS,"rows":ROWS,"layoutRevision":9,
+  "version":1,"cols":COLS,"rows":ROWS,"layoutRevision":10,
   "tiles":[tiles[r][c] for r in range(ROWS) for c in range(COLS)],
   "tileColors":[colors[r][c] for r in range(ROWS) for c in range(COLS)],
   "furniture":furniture,
