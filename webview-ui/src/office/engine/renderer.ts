@@ -1103,6 +1103,12 @@ export function renderFrame(
   // Draw tiles (floor + wall base color)
   renderTileGrid(ctx, tileMap, offsetX, offsetY, zoom, tileColors, layoutCols);
 
+  // Work-space name signs live on the floor (drawn right after the tiles), so
+  // furniture and characters render on top of them and never get covered.
+  if (rooms && rooms.length > 0 && !editor) {
+    renderRoomLabels(ctx, rooms, characters, offsetX, offsetY, zoom);
+  }
+
   // Seat indicators (below furniture/characters, on top of floor)
   if (selection) {
     renderSeatIndicators(
@@ -1143,9 +1149,8 @@ export function renderFrame(
     renderPetBubbles(ctx, pets, offsetX, offsetY, zoom);
   }
 
-  // Work-space name signs + token board on the top wall (skip in edit mode)
+  // Token board on the top wall (overlay, above everything; no characters there)
   if (rooms && rooms.length > 0 && !editor) {
-    renderRoomLabels(ctx, rooms, characters, offsetX, offsetY, zoom);
     renderTokenHud(ctx, characters, rooms, offsetX, offsetY, zoom);
   }
 
