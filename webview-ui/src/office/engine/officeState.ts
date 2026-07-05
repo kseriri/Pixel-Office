@@ -992,6 +992,17 @@ export class OfficeState {
     this.syncLayoutPets();
   }
 
+  /** Change an existing pet's sprite type. Syncs the layout so saveLayout
+   *  persists it. No-op if the pet is missing or the type is out of range. */
+  setPetType(id: string, petType: number): void {
+    if (!Number.isInteger(petType) || petType < 0 || petType >= getPetCount()) return;
+    const pet = this.pets.find((p) => p.id === id);
+    if (!pet || pet.petType === petType) return;
+    pet.petType = petType;
+    pet.name = getPetName(petType);
+    this.syncLayoutPets();
+  }
+
   /** Remove a pet by id. Idempotent. */
   removePet(id: string): void {
     const before = this.pets.length;

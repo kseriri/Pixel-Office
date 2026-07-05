@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { isSoundEnabled, setSoundEnabled } from '../notificationSound.js';
 import { transport } from '../transport/index.js';
 import { CharacterAssignments } from './CharacterAssignments.js';
+import { PetAssignments } from './PetAssignments.js';
 import { Button } from './ui/Button.js';
 import { Checkbox } from './ui/Checkbox.js';
 import { MenuItem } from './ui/MenuItem.js';
@@ -23,6 +24,10 @@ interface SettingsModalProps {
   /** Project folder names currently visible in the office (merged with the
    *  server's historical project list for the character-assignment editor). */
   liveProjects?: string[];
+  /** Pets currently in the office (for the pet-selection editor). */
+  pets?: Array<{ id: string; petType: number }>;
+  /** Change a pet's sprite type (persists via layout save). */
+  onSetPetType?: (id: string, petType: number) => void;
 }
 
 export function SettingsModal({
@@ -38,6 +43,8 @@ export function SettingsModal({
   hooksEnabled,
   onToggleHooksEnabled,
   liveProjects = [],
+  pets = [],
+  onSetPetType,
 }: SettingsModalProps) {
   const [soundLocal, setSoundLocal] = useState(isSoundEnabled);
 
@@ -123,6 +130,10 @@ export function SettingsModal({
         Character assignment (project × model)
       </div>
       <CharacterAssignments liveProjects={liveProjects} />
+      <div style={{ padding: '8px 10px 2px', fontSize: 13, fontWeight: 600, opacity: 0.9 }}>
+        Pets
+      </div>
+      {onSetPetType && <PetAssignments pets={pets} onSetPetType={onSetPetType} />}
     </Modal>
   );
 }

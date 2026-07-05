@@ -108,25 +108,29 @@ export function CharacterAssignments({ liveProjects }: { liveProjects: string[] 
         </select>
       </div>
 
-      {MODEL_OPTIONS.map((m) => {
-        const p = getAssignmentByKey(selected, m.key);
-        return (
-          <div key={m.key} style={rowStyle}>
-            <span style={{ fontSize: 13 }}>{m.label}</span>
-            <div
-              style={slotStyle}
-              title={p === undefined ? 'auto (click to choose)' : `char ${p + 1} (click to change)`}
-              onClick={() => setPickerModelKey(m.key)}
-            >
-              {p === undefined ? (
-                <span style={{ fontSize: 11, opacity: 0.55 }}>auto</span>
-              ) : (
-                <CharSwatch palette={p} h={44} />
-              )}
+      <div style={{ maxHeight: 210, overflow: 'auto' }}>
+        {MODEL_OPTIONS.map((m) => {
+          const p = getAssignmentByKey(selected, m.key);
+          return (
+            <div key={m.key} style={rowStyle}>
+              <span style={{ fontSize: 13 }}>{m.label}</span>
+              <div
+                style={slotStyle}
+                title={
+                  p === undefined ? 'auto (click to choose)' : `char ${p + 1} (click to change)`
+                }
+                onClick={() => setPickerModelKey(m.key)}
+              >
+                {p === undefined ? (
+                  <span style={{ fontSize: 11, opacity: 0.55 }}>auto</span>
+                ) : (
+                  <CharSwatch palette={p} h={44} />
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
 
       {pickerModelKey !== null && (
         <div

@@ -63,6 +63,7 @@ interface EditorActions {
   handleEditorSelectionChange: () => void;
   handleDragMove: (uid: string, newCol: number, newRow: number) => void;
   handlePetToggle: (petType: number, active: boolean) => void;
+  handlePetTypeChange: (id: string, petType: number) => void;
 }
 
 export function useEditorActions(
@@ -428,6 +429,18 @@ export function useEditorActions(
     [],
   );
 
+  // Change an existing pet's sprite type (from Settings, not the layout editor):
+  // update it live + persist, without the undo/dirty machinery of an edit.
+  const handlePetTypeChange = useCallback(
+    (id: string, petType: number) => {
+      const os = getOfficeState();
+      os.setPetType(id, petType);
+      saveLayout(os.getLayout());
+      setEditorTick((n) => n + 1);
+    },
+    [getOfficeState, saveLayout],
+  );
+
   const handlePetToggle = useCallback(
     (petType: number, active: boolean) => {
       const os = getOfficeState();
@@ -662,5 +675,6 @@ export function useEditorActions(
     handleEditorSelectionChange,
     handleDragMove,
     handlePetToggle,
+    handlePetTypeChange,
   };
 }

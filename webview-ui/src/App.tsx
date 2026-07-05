@@ -387,6 +387,14 @@ function App() {
               )
             : []
         }
+        pets={
+          isSettingsOpen
+            ? getOfficeState()
+                .getPets()
+                .map((p) => ({ id: p.id, petType: p.petType }))
+            : []
+        }
+        onSetPetType={editor.handlePetTypeChange}
       />
 
       {showMigrationNotice && (
