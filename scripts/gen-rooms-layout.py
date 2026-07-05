@@ -64,19 +64,20 @@ def add(t,c,r,color=None):
     if color: f["color"]=color
     furniture.append(f)
 
-# ── work spaces: desk + PC on top, chairs directly BELOW facing DOWN (toward the
-#    viewer), so a seated agent shows their face instead of their back. Chairs sit
-#    on open floor below the desk, so they're always reachable. `c`,`r` = left
-#    column / desk row (desk spans rows r..r+1; chairs at r+2).
+# ── work spaces: chairs on top facing DOWN, with the desk + PC directly BELOW —
+#    so a seated agent shows their face AND is looking at the PC (which lights up
+#    while working). `c`,`r` = left column / chairs row; the row above the chairs
+#    is left open as the approach corridor (agents reach seats from above), and
+#    the desk columns leave a clear side column so pathing always works.
 def workstation(c, r):
-    add("DESK_FRONT", c, r); add("DESK_FRONT", c + 3, r)
-    add("PC_FRONT_OFF", c + 1, r); add("PC_FRONT_OFF", c + 4, r)
-    for cc in (c, c + 1, c + 3, c + 4):
-        add("CUSHIONED_CHAIR_FRONT", cc, r + 2)  # front-facing chair = faces the viewer
+    add("CUSHIONED_CHAIR_FRONT", c, r); add("CUSHIONED_CHAIR_FRONT", c + 1, r)
+    add("CUSHIONED_CHAIR_FRONT", c + 3, r); add("CUSHIONED_CHAIR_FRONT", c + 4, r)
+    add("DESK_FRONT", c, r + 1); add("DESK_FRONT", c + 3, r + 1)  # below the chairs
+    add("PC_FRONT_OFF", c + 1, r + 1); add("PC_FRONT_OFF", c + 4, r + 1)
 
-workstation(1, 3)    # zone 1 (top-left)
+workstation(1, 3)    # zone 1 (top-left):  corridor row2, chairs row3, desk row4-5
 workstation(9, 3)    # zone 2 (top-right)
-workstation(1, 10)   # zone 3 (bottom-left)
+workstation(1, 10)   # zone 3 (bottom-left): corridor row9, chairs row10, desk row11-12
 
 # ── break lounge (bottom-right): a cosy sofa cluster + greenery ──
 add("SOFA_FRONT",11,9)
@@ -92,7 +93,7 @@ add("WHITEBOARD",2,0); add("SMALL_PAINTING",7,0)
 add("CLOCK",10,0); add("SMALL_PAINTING",13,0)
 
 layout={
-  "version":1,"cols":COLS,"rows":ROWS,"layoutRevision":10,
+  "version":1,"cols":COLS,"rows":ROWS,"layoutRevision":11,
   "tiles":[tiles[r][c] for r in range(ROWS) for c in range(COLS)],
   "tileColors":[colors[r][c] for r in range(ROWS) for c in range(COLS)],
   "furniture":furniture,
