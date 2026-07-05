@@ -70,10 +70,14 @@ def add(t,c,r,color=None):
 #    is left open as the approach corridor (agents reach seats from above), and
 #    the desk columns leave a clear side column so pathing always works.
 def workstation(c, r):
-    add("CUSHIONED_CHAIR_FRONT", c, r); add("CUSHIONED_CHAIR_FRONT", c + 1, r)
-    add("CUSHIONED_CHAIR_FRONT", c + 3, r); add("CUSHIONED_CHAIR_FRONT", c + 4, r)
-    add("DESK_FRONT", c, r + 1); add("DESK_FRONT", c + 3, r + 1)  # below the chairs
-    add("PC_FRONT_OFF", c + 1, r + 1); add("PC_FRONT_OFF", c + 4, r + 1)
+    # Two desk rows so the surface sits right under the agent (no "typing in the
+    # air" gap); a back-facing monitor in front of each agent (screen faces them,
+    # we see its back); chairs on top facing down.
+    add("DESK_FRONT", c, r); add("DESK_FRONT", c + 3, r)            # desk row 1
+    add("DESK_FRONT", c, r + 1); add("DESK_FRONT", c + 3, r + 1)    # desk row 2 (depth)
+    for cc in (c, c + 1, c + 3, c + 4):
+        add("PC_BACK", cc, r)                    # monitor directly in front of the agent
+        add("CUSHIONED_CHAIR_FRONT", cc, r)      # agent seat, faces down
 
 workstation(1, 3)    # zone 1 (top-left):  corridor row2, chairs row3, desk row4-5
 workstation(9, 3)    # zone 2 (top-right)
@@ -93,7 +97,7 @@ add("WHITEBOARD",2,0); add("SMALL_PAINTING",7,0)
 add("CLOCK",10,0); add("SMALL_PAINTING",13,0)
 
 layout={
-  "version":1,"cols":COLS,"rows":ROWS,"layoutRevision":11,
+  "version":1,"cols":COLS,"rows":ROWS,"layoutRevision":12,
   "tiles":[tiles[r][c] for r in range(ROWS) for c in range(COLS)],
   "tileColors":[colors[r][c] for r in range(ROWS) for c in range(COLS)],
   "furniture":furniture,
@@ -102,7 +106,7 @@ layout={
 }
 
 # ── verify: seat derivation (chairs, per footprint tile minus bg rows) ──
-FP={"DESK_FRONT":(3,2,1,"desks"),"PC_FRONT_OFF":(1,2,1,"electronics"),
+FP={"DESK_FRONT":(3,2,1,"desks"),"PC_FRONT_OFF":(1,2,1,"electronics"),"PC_BACK":(1,2,1,"electronics"),
     "CUSHIONED_BENCH":(1,1,0,"chairs"),"WOODEN_BENCH":(1,1,0,"chairs"),
     "CUSHIONED_CHAIR_FRONT":(1,1,0,"chairs"),"CUSHIONED_CHAIR_BACK":(1,1,0,"chairs"),
     "SOFA_FRONT":(2,1,0,"chairs"),"SOFA_BACK":(2,1,0,"chairs"),
