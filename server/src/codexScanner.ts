@@ -16,6 +16,7 @@ import * as path from 'path';
 import { StringDecoder } from 'string_decoder';
 
 import type { AgentStateStore } from './agentStateStore.js';
+import { projectLabelFromPath } from './fileWatcher.js';
 import type { AgentState } from './types.js';
 
 const CODEX_ROOT = path.join(os.homedir(), '.codex', 'sessions');
@@ -57,7 +58,7 @@ function makeAgent(id: number, file: string, cwd: string, sessionId: string, mod
     isWaiting: false,
     permissionSent: false,
     hadToolsInTurn: false,
-    folderName: cwd ? path.basename(cwd) : 'codex',
+    folderName: cwd ? projectLabelFromPath(cwd) : 'codex',
     lastDataAt: Date.now(),
     linesProcessed: 0,
     seenUnknownRecordTypes: new Set(),

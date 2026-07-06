@@ -827,7 +827,7 @@ export function adoptExternalSessionFromHook(
 
     knownJsonlFiles.add(transcriptPath);
     const projectDir = path.dirname(transcriptPath);
-    const folderName = folderNameFromProjectDir(path.basename(projectDir));
+    const folderName = folderNameForSession(transcriptPath, path.basename(projectDir));
 
     adoptExternalSession(
       transcriptPath,
@@ -856,7 +856,7 @@ export function adoptExternalSessionFromHook(
   } else {
     // Hooks-only provider (OpenCode, Copilot): no transcript file, all state from hooks
     const id = nextAgentIdRef.current++;
-    const folderName = cwd ? path.basename(cwd) : undefined;
+    const folderName = cwd ? projectLabelFromPath(cwd) : undefined;
     const agent: AgentState = {
       id,
       sessionId,
@@ -1180,6 +1180,44 @@ function folderNameFromProjectDir(dirName: string): string {
   return parts[parts.length - 1] || dirName;
 }
 
+/** Project label from a real cwd path: the project folder's full basename, with
+ *  any git-worktree suffix stripped (worktrees live at <project>/.claude-worktrees/…). */
+export function projectLabelFromPath(cwd: string): string {
+  const marker = '/.claude/worktrees/';
+  const i = cwd.indexOf(marker);
+  const base = i >= 0 ? cwd.slice(0, i) : cwd;
+  return path.basename(base) || base;
+}
+
+/** Read the session's cwd from the first records of its JSONL, or null. */
+function readCwdFromJsonl(file: string): string | null {
+  try {
+    const fd = fs.openSync(file, 'r');
+    const buf = Buffer.alloc(16384);
+    const n = fs.readSync(fd, buf, 0, buf.length, 0);
+    fs.closeSync(fd);
+    for (const line of buf.subarray(0, n).toString('utf8').split('\n')) {
+      if (!line.includes('"cwd"')) continue;
+      try {
+        const o = JSON.parse(line) as { cwd?: unknown };
+        if (typeof o.cwd === 'string' && o.cwd) return o.cwd;
+      } catch {
+        /* partial/last line — ignore */
+      }
+    }
+  } catch {
+    /* unreadable — fall back */
+  }
+  return null;
+}
+
+/** Best folder label for a session: prefer the real cwd (full project name),
+ *  else fall back to the encoded project-dir heuristic. */
+function folderNameForSession(jsonlFile: string, projectDirName: string): string {
+  const cwd = readCwdFromJsonl(jsonlFile);
+  return cwd ? projectLabelFromPath(cwd) : folderNameFromProjectDir(projectDirName);
+}
+
 /** Scan every session root the active provider exposes for active sessions
  *  (global discovery — powers the "Watch All Sessions" toggle). */
 function scanGlobalProjectDirs(
@@ -1242,7 +1280,7 @@ function scanGlobalProjectDirs(
         continue;
       }
 
-      const folderName = folderNameFromProjectDir(path.basename(dirPath));
+      const folderName = folderNameForSession(file, path.basename(dirPath));
       knownJsonlFiles.add(file);
       console.log(
         `[Pixel Agents] Watcher: detected global session ${path.basename(file)} (${folderName})`,
