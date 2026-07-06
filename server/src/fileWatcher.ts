@@ -1170,7 +1170,13 @@ export function scanExternalDir(
 
 /** Derive a readable folder name from the Claude project dir hash. */
 function folderNameFromProjectDir(dirName: string): string {
-  const parts = dirName.replace(/^-+/, '').split('-');
+  // Claude worktrees encode as "<...>-<project>--claude-worktrees-<name>-<hash>".
+  // Strip the worktree suffix so we label by the project, not the random hash
+  // (otherwise the project shows up as e.g. "0cfe07").
+  let name = dirName;
+  const wt = name.indexOf('claude-worktrees');
+  if (wt > 0) name = name.slice(0, wt);
+  const parts = name.replace(/^-+/, '').replace(/-+$/, '').split('-');
   return parts[parts.length - 1] || dirName;
 }
 
